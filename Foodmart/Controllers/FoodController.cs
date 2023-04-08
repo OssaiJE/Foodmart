@@ -5,6 +5,7 @@ namespace Foodmart.Controllers;
 
 [ApiController]
 [Route("food")]
+// [Route("[controller]")] // Alternatively for above
 public class FoodController : ControllerBase
 {
     [HttpPost()]
