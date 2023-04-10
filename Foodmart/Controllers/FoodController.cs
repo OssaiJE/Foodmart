@@ -1,4 +1,5 @@
 using Foodmart.Contracts.Food;
+using Foodmart.Interfaces;
 using Foodmart.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,13 @@ namespace Foodmart.Controllers;
 // [Route("[controller]")] // Alternatively for above
 public class FoodController : ControllerBase
 {
+    private readonly IFood _foodInterface;
+
+    public FoodController(IFood foodInterface)
+    {
+        _foodInterface = foodInterface;
+    }
+
     [HttpPost()]
     public IActionResult CreateFood(CreateFood request)
     {
@@ -22,7 +30,9 @@ public class FoodController : ControllerBase
             request.Savory,
             request.Sweet
             );
-        // TODO: save to DB
+
+        _foodInterface.CreateFood(food);
+
         var response = new FoodResponse(
             food.Id,
             food.Name,
