@@ -5,7 +5,7 @@ namespace Foodmart.Services;
 
 public class FoodService : IFood
 {
-    private readonly Dictionary<Guid, FoodModel> _food = new();
+    private static readonly Dictionary<Guid, FoodModel> _food = new();
     public void CreateFood(FoodModel food)
     {
         _food.Add(food.Id, food);

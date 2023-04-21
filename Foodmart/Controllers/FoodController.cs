@@ -55,7 +55,18 @@ public class FoodController : ControllerBase
     public IActionResult GetFood(Guid id)
     {
         FoodModel food = _foodInterface.GetFood(id);
-        return Ok(id);
+
+        var response = new FoodResponse(
+            food.Id,
+            food.Name,
+            food.Description,
+            food.StartDateTime,
+            food.EndDateTime,
+            food.LastModifiedDateTime,
+            food.Savory,
+            food.Sweet
+        );
+        return Ok(response);
     }
 
     [HttpPut("{id:guid}")]
