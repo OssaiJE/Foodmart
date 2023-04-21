@@ -10,4 +10,9 @@ public class FoodService : IFood
     {
         _food.Add(food.Id, food);
     }
+
+    public FoodModel GetFood(Guid id)
+    {
+        return _food[id];
+    }
 }

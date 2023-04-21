@@ -54,6 +54,7 @@ public class FoodController : ControllerBase
     [HttpGet("{id:guid}")]
     public IActionResult GetFood(Guid id)
     {
+        FoodModel food = _foodInterface.GetFood(id);
         return Ok(id);
     }
 
