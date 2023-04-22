@@ -72,12 +72,24 @@ public class FoodController : ControllerBase
     [HttpPut("{id:guid}")]
     public IActionResult UpdateFood(Guid id, UpdateFood request)
     {
-        return Ok(request);
+        var food = new FoodModel(
+            id,
+            request.Name,
+            request.Description,
+            request.StartDateTime,
+            request.EndDateTime,
+            DateTime.UtcNow,
+            request.Savory,
+            request.Sweet
+        );
+        _foodInterface.UpsertFood(food);
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
     public IActionResult DeleteFood(Guid id)
     {
-        return Ok(id);
+        _foodInterface.DeleteFood(id);
+        return NoContent();
     }
 }
