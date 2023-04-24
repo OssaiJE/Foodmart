@@ -122,7 +122,7 @@ PUT /food/{{id}}
         "Oatmeal",
         "Avocado Toast",
         "Omelette",
-        "Salad"
+        "Salads"
     ],
     "Sweet": [
         "Cookie"
