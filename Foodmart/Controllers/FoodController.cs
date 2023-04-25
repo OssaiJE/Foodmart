@@ -1,6 +1,8 @@
+using ErrorOr;
 using Foodmart.Contracts.Food;
 using Foodmart.Interfaces;
 using Foodmart.Models;
+using Foodmart.ServiceErrors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foodmart.Controllers;
@@ -54,7 +56,14 @@ public class FoodController : ControllerBase
     [HttpGet("{id:guid}")]
     public IActionResult GetFood(Guid id)
     {
-        FoodModel food = _foodInterface.GetFood(id);
+        ErrorOr<FoodModel> getFoodResult = _foodInterface.GetFood(id);
+
+        if (getFoodResult.IsError && getFoodResult.FirstError == Errors.FoodError.NotFound)
+        {
+            return NotFound();
+        }
+
+        var food = getFoodResult.Value;
 
         var response = new FoodResponse(
             food.Id,

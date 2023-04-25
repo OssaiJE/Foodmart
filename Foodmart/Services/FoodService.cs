@@ -1,5 +1,7 @@
+using ErrorOr;
 using Foodmart.Interfaces;
 using Foodmart.Models;
+using Foodmart.ServiceErrors;
 
 namespace Foodmart.Services;
 
@@ -16,9 +18,13 @@ public class FoodService : IFood
         _food.Remove(id);
     }
 
-    public FoodModel GetFood(Guid id)
+    public ErrorOr<FoodModel> GetFood(Guid id)
     {
-        return _food[id];
+        if (_food.TryGetValue(id, out var food))
+        {
+            return food;
+        }
+        return Errors.FoodError.NotFound;
     }
 
     public void UpsertFood(FoodModel food)
