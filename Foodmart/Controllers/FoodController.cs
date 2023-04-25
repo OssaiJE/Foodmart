@@ -7,10 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Foodmart.Controllers;
 
-[ApiController]
-[Route("food")]
-// [Route("[controller]")] // Alternatively for above
-public class FoodController : ControllerBase
+public class FoodController : ApiController
 {
     private readonly IFood _foodInterface;
 
@@ -58,14 +55,15 @@ public class FoodController : ControllerBase
     {
         ErrorOr<FoodModel> getFoodResult = _foodInterface.GetFood(id);
 
-        if (getFoodResult.IsError && getFoodResult.FirstError == Errors.FoodError.NotFound)
-        {
-            return NotFound();
-        }
+        return getFoodResult.Match(
+            food => Ok(MapFoodResponse(food)),
+            errors => Problem(errors)
+        );
+    }
 
-        var food = getFoodResult.Value;
-
-        var response = new FoodResponse(
+    private static FoodResponse MapFoodResponse(FoodModel food)
+    {
+        return new FoodResponse(
             food.Id,
             food.Name,
             food.Description,
@@ -75,7 +73,6 @@ public class FoodController : ControllerBase
             food.Savory,
             food.Sweet
         );
-        return Ok(response);
     }
 
     [HttpPut("{id:guid}")]
