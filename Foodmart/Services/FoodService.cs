@@ -31,11 +31,12 @@ public class FoodService : IFood
         return Errors.FoodError.NotFound;
     }
 
-    public ErrorOr<Updated> UpsertFood(FoodModel food)
+    public ErrorOr<UpsertedFood> UpsertFood(FoodModel food)
     {
+        var IsNewlyCreated = !_food.ContainsKey(food.Id);
         _food[food.Id] = food;
 
-        return Result.Updated;
+        return new UpsertedFood(IsNewlyCreated);
     }
 
 }

@@ -3,6 +3,7 @@ using Foodmart.Contracts.Food;
 using Foodmart.Interfaces;
 using Foodmart.Models;
 using Foodmart.ServiceErrors;
+using Foodmart.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foodmart.Controllers;
@@ -32,16 +33,10 @@ public class FoodController : ApiController
 
         ErrorOr<Created> creatFoodResult = _foodInterface.CreateFood(food);
 
-        if (creatFoodResult.IsError)
-        {
-            return Problem(creatFoodResult.Errors);
-        }
-
-        return CreatedAtAction(
-            actionName: nameof(GetFood),
-            routeValues: new { id = food.Id },
-            value: MapFoodResponse(food)
-            );
+        return creatFoodResult.Match(
+            created => CreatedAtGetFood(food),
+            errors => Problem(errors)
+        );
     }
 
     [HttpGet("{id:guid}")]
@@ -68,15 +63,22 @@ public class FoodController : ApiController
             request.Savory,
             request.Sweet
         );
-        _foodInterface.UpsertFood(food);
-        return NoContent();
+        ErrorOr<UpsertedFood> upsertFoodResult = _foodInterface.UpsertFood(food);
+
+        return upsertFoodResult.Match(
+            upserted => upserted.IsNewlyCreated ? CreatedAtGetFood(food) : NoContent(),
+            errors => Problem(errors)
+            );
     }
 
     [HttpDelete("{id:guid}")]
     public IActionResult DeleteFood(Guid id)
     {
-        _foodInterface.DeleteFood(id);
-        return NoContent();
+        ErrorOr<Deleted> deleteFoodResult = _foodInterface.DeleteFood(id);
+        return deleteFoodResult.Match(
+            deleted => NoContent(),
+            errors => Problem(errors)
+        );
     }
 
     private static FoodResponse MapFoodResponse(FoodModel food)
@@ -91,5 +93,14 @@ public class FoodController : ApiController
             food.Savory,
             food.Sweet
         );
+    }
+
+    private CreatedAtActionResult CreatedAtGetFood(FoodModel food)
+    {
+        return CreatedAtAction(
+            actionName: nameof(GetFood),
+            routeValues: new { id = food.Id },
+            value: MapFoodResponse(food)
+            );
     }
 }
