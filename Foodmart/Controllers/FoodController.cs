@@ -30,23 +30,17 @@ public class FoodController : ApiController
             request.Sweet
             );
 
-        _foodInterface.CreateFood(food);
+        ErrorOr<Created> creatFoodResult = _foodInterface.CreateFood(food);
 
-        var response = new FoodResponse(
-            food.Id,
-            food.Name,
-            food.Description,
-            food.StartDateTime,
-            food.EndDateTime,
-            food.LastModifiedDateTime,
-            food.Savory,
-            food.Sweet
-        );
+        if (creatFoodResult.IsError)
+        {
+            return Problem(creatFoodResult.Errors);
+        }
 
         return CreatedAtAction(
             actionName: nameof(GetFood),
             routeValues: new { id = food.Id },
-            value: response
+            value: MapFoodResponse(food)
             );
     }
 
@@ -58,20 +52,6 @@ public class FoodController : ApiController
         return getFoodResult.Match(
             food => Ok(MapFoodResponse(food)),
             errors => Problem(errors)
-        );
-    }
-
-    private static FoodResponse MapFoodResponse(FoodModel food)
-    {
-        return new FoodResponse(
-            food.Id,
-            food.Name,
-            food.Description,
-            food.StartDateTime,
-            food.EndDateTime,
-            food.LastModifiedDateTime,
-            food.Savory,
-            food.Sweet
         );
     }
 
@@ -97,5 +77,19 @@ public class FoodController : ApiController
     {
         _foodInterface.DeleteFood(id);
         return NoContent();
+    }
+
+    private static FoodResponse MapFoodResponse(FoodModel food)
+    {
+        return new FoodResponse(
+            food.Id,
+            food.Name,
+            food.Description,
+            food.StartDateTime,
+            food.EndDateTime,
+            food.LastModifiedDateTime,
+            food.Savory,
+            food.Sweet
+        );
     }
 }

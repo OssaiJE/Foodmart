@@ -8,14 +8,18 @@ namespace Foodmart.Services;
 public class FoodService : IFood
 {
     private static readonly Dictionary<Guid, FoodModel> _food = new();
-    public void CreateFood(FoodModel food)
+    public ErrorOr<Created> CreateFood(FoodModel food)
     {
         _food.Add(food.Id, food);
+
+        return Result.Created;
     }
 
-    public void DeleteFood(Guid id)
+    public ErrorOr<Deleted> DeleteFood(Guid id)
     {
         _food.Remove(id);
+
+        return Result.Deleted;
     }
 
     public ErrorOr<FoodModel> GetFood(Guid id)
@@ -27,9 +31,11 @@ public class FoodService : IFood
         return Errors.FoodError.NotFound;
     }
 
-    public void UpsertFood(FoodModel food)
+    public ErrorOr<Updated> UpsertFood(FoodModel food)
     {
         _food[food.Id] = food;
+
+        return Result.Updated;
     }
 
 }
