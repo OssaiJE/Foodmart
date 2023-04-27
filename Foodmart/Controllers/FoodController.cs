@@ -20,16 +20,21 @@ public class FoodController : ApiController
     [HttpPost()]
     public IActionResult CreateFood(CreateFood request)
     {
-        var food = new FoodModel(
-            Guid.NewGuid(),
+        ErrorOr<FoodModel> requestFoodResult = FoodModel.Create(
             request.Name,
             request.Description,
             request.StartDateTime,
             request.EndDateTime,
-            DateTime.UtcNow,
             request.Savory,
             request.Sweet
             );
+
+        if (requestFoodResult.IsError)
+        {
+            return Problem(requestFoodResult.Errors);
+        }
+
+        var food = requestFoodResult.Value;
 
         ErrorOr<Created> creatFoodResult = _foodInterface.CreateFood(food);
 
@@ -53,16 +58,23 @@ public class FoodController : ApiController
     [HttpPut("{id:guid}")]
     public IActionResult UpdateFood(Guid id, UpdateFood request)
     {
-        var food = new FoodModel(
-            id,
+        ErrorOr<FoodModel> requestFoodResult = FoodModel.Create(
             request.Name,
             request.Description,
             request.StartDateTime,
             request.EndDateTime,
-            DateTime.UtcNow,
             request.Savory,
-            request.Sweet
+            request.Sweet,
+            id
         );
+
+        if (requestFoodResult.IsError)
+        {
+            return Problem(requestFoodResult.Errors);
+        }
+
+        var food = requestFoodResult.Value;
+        
         ErrorOr<UpsertedFood> upsertFoodResult = _foodInterface.UpsertFood(food);
 
         return upsertFoodResult.Match(
